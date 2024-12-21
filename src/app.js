@@ -1,59 +1,33 @@
 const express = require("express");
 const app = express();
 const port = 7777;
+const { adminAuth, userAuth } = require("./middleware/auth");
+// handle auth middleware for all routes
+app.use("/admin", adminAuth);
 
-app.use("/test", (req, res) => {
-  res.send("test page");
+app.get("/user", userAuth, (req, res) => {
+  try {
+    throw new Error("Something went wrong");
+    res.send("User data");
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("Something went wrong, contact admin");
+  }
 });
 
-// app.use("/users", (req, res) => {
-//   res.send("HAHAHAHAHA");
-// });
-
-// b is option in routing
-app.get("/ab?c", (req, res) => {
-  res.send({ firstName: "Shivam", lastName: "Kumar" });
+app.get("/admin/getAllData", (req, res) => {
+  res.send("All data sent");
 });
 
-// should start with a and end with c, and in  between a and c there should be any character
-app.get("/ab+c", (req, res) => {
-  res.send({ firstName: "John", lastName: "Deo" });
+app.get("/admin/deleteUsers", (req, res) => {
+  res.send("All data deleted");
 });
 
-// any number of bc can be there in between a and d
-app.get("/a(bc)+d", (req, res) => {
-  res.send({ firstName: "Johnny", lastName: "Deo" });
-});
-
-// regex for anything ending with fly
-app.get(/.*fly$/, (req, res) => {
-  res.send({ regEX: "Regular Expression" });
-});
-
-// query params
-app.get("/users", (req, res) => {
-  console.log(req.query);
-  res.send({ firstName: "Shivam", lastName: "Kumar" });
-});
-
-// dynamic routing
-app.get("/users/:id", (req, res) => {
-  console.log(req.params);
-  res.send({ id: req.params.id });
-});
-
-app.get("/users", (req, res) => {
-  res.send({ firstName: "Shivam", lastName: "Kumar" });
-});
-
-app.post("/users", (req, res) => {
-  console.log("POST request");
-  res.send({ message: "Post recived sucessfully" });
-});
-
-app.delete("/users", (req, res) => {
-  console.log("DELETE request received");
-  res.send({ message: "Deleted sucessfully" });
+app.use("/", (err, req, res, next) => {
+  if (err) {
+    console.log(err);
+    res.status(500).send("Something went wrong, generic error handler");
+  }
 });
 
 app.listen(port, () => {
